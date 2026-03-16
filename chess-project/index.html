@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nebula Chess - AI Strategy Game</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="start-screen" class="glass-panel">
+        <h1 class="premium-title">NEBULA CHESS</h1>
+        <p class="subtitle">Chọn chế độ chơi để bắt đầu</p>
+        
+        <div class="mode-selection" id="mode-selection">
+            <button id="pvpModeBtn" class="mode-btn">
+                <span class="icon">👥</span>
+                <span>Người vs Người</span>
+            </button>
+            <button id="pvaiModeBtn" class="mode-btn">
+                <span class="icon">🤖</span>
+                <span>Người vs Máy (AI)</span>
+            </button>
+            <button id="onlineModeBtn" class="mode-btn">
+                <span class="icon">🌐</span>
+                <span>Đấu Online</span>
+            </button>
+        </div>
+
+        <div id="online-selection" class="hidden">
+            <p class="subtitle">Chế độ Online</p>
+            <div class="online-options">
+                <div class="setting-group" style="margin-bottom: 1rem;">
+                    <label>ĐỊA CHỈ SERVER (IP):</label>
+                    <input type="text" id="serverIpInput" value="localhost" placeholder="Ví dụ: 192.168.1.5">
+                    <button class="secondary-btn" id="connectBtn" style="font-size: 0.7rem; padding: 0.4rem;">Kết nối Server</button>
+                </div>
+                
+                <div id="online-room-actions" class="hidden">
+                    <button class="premium-btn" id="createRoomBtn">Tạo Phòng Mới</button>
+                    <div class="spacer"><span>HOẶC</span></div>
+                    <div class="join-group">
+                        <input type="text" id="roomInput" placeholder="Mã phòng..." maxlength="6">
+                        <button class="premium-btn" id="joinRoomBtn">Tham Gia</button>
+                    </div>
+                </div>
+            </div>
+            <button id="backFromOnlineBtn" class="secondary-btn" style="margin-top: 1.5rem; width: 100%;">Quay lại</button>
+        </div>
+
+        <div id="difficulty-selection" class="hidden">
+            <p class="subtitle">Chọn độ khó AI</p>
+            <div class="diff-options">
+                <button class="diff-btn" data-value="1">Dễ</button>
+                <button class="diff-btn" data-value="2">Trung bình</button>
+                <button class="diff-btn" data-value="3">Khó</button>
+            </div>
+            <button id="backBtn" class="secondary-btn">Quay lại</button>
+        </div>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <div id="app-container">
+            <!-- Sidebar / Info Panel -->
+            <div id="side-panel" class="glass-panel">
+                <h1 class="premium-title">NEBULA CHESS</h1>
+                <div class="game-info">
+                    <div class="turn-indicator" id="turnIndicator">
+                        <span class="dot"></span> TRẮNG ĐI
+                    </div>
+                    <div class="status-box" id="gameStatus">Trò chơi bắt đầu</div>
+                </div>
+
+                <div class="move-history-container">
+                    <h3>LỊCH SỬ NƯỚC ĐI</h3>
+                    <div id="moveLog" class="move-log"></div>
+                </div>
+
+                <div class="controls">
+                    <button id="hintBtn" class="secondary-btn">GỢI Ý</button>
+                    <button id="undoBtn" class="secondary-btn">HOÀN TÁC</button>
+                    <button id="restartBtn" class="premium-btn">THOÁT RA MENU</button>
+                    
+                    <div id="game-info" class="setting-group">
+                        <div class="info-item">
+                            <span class="label">CHẾ ĐỘ:</span>
+                            <span id="displayMode" class="value">-</span>
+                        </div>
+                        <div class="info-item" id="displayDiffGroup">
+                            <span class="label">ĐỘ KHÓ:</span>
+                            <span id="displayDiff" class="value">-</span>
+                        </div>
+                        <div class="timer-container">
+                            <div class="timer-box" id="white-timer-box">
+                                <span class="label">TRẮNG:</span>
+                                <span id="white-timer" class="time">10:00</span>
+                            </div>
+                            <div class="timer-box" id="black-timer-box">
+                                <span class="label">ĐEN:</span>
+                                <span id="black-timer" class="time">10:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="author-credits">
+                    Đồ Án Học Phần - CNTT
+                </div>
+            </div>
+
+            <!-- Board Area -->
+            <div id="board-container">
+                <div id="eval-bar-container">
+                    <div id="eval-fill"></div>
+                    <div id="eval-score">0.0</div>
+                </div>
+                <div id="chess-board">
+                    <!-- Squares will be generated by JS -->
+                </div>
+                
+                <!-- Ready Overlay -->
+                <div id="lobby-overlay" class="overlay hidden">
+                    <div class="glass-card">
+                        <h3>PHÒNG CHỜ</h3>
+                        <p id="lobbyStatus">Đang đợi đối thủ...</p>
+                        <div class="ready-status">
+                            <div id="status-me">Bạn: <span>Chưa sẵn sàng</span></div>
+                            <div id="status-opponent">Đối thủ: <span>Chưa sẵn sàng</span></div>
+                        </div>
+                        <button id="readyBtn" class="premium-btn">SẴN SÀNG</button>
+                    </div>
+                </div>
+
+                <!-- Promotion Modal -->
+                <div id="promotion-overlay" class="overlay hidden">
+                    <div class="glass-card">
+                        <h3>PHONG CẤP TỐT</h3>
+                        <div class="promotion-choices">
+                            <button data-piece="Q">Hậu</button>
+                            <button data-piece="R">Xe</button>
+                            <button data-piece="B">Tượng</button>
+                            <button data-piece="N">Mã</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Captured Pieces Panel -->
+            <div id="captured-panel" class="glass-panel">
+                <div class="captured-group">
+                    <p>Quân Đen đã bắt:</p>
+                    <div id="captured-white" class="captured-box"></div>
+                </div>
+                <div class="captured-group">
+                    <p>Quân Trắng đã bắt:</p>
+                    <div id="captured-black" class="captured-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="pieces.js"></script>
+    <script src="board.js"></script>
+    <script src="ai.js"></script>
+    <script src="ui.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
